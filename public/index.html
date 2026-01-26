@@ -1,146 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Cochran Claims – Claim Editor</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Cochran Claims – Claim Editor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <!-- Firebase (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-<style>
-body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; }
-header { background:#1f2d3d; color:#fff; padding:14px 20px; font-size:22px; }
-.toolbar { background:#eee; padding:10px; display:flex; gap:10px; align-items:center; }
-.container { padding:20px; max-width:1200px; }
-h2 { margin-top:40px; border-bottom:2px solid #ccc; padding-bottom:4px; }
-label { display:block; margin-top:10px; font-weight:bold; }
-input, select, textarea { width:100%; padding:6px; margin-top:4px; }
-textarea { min-height:70px; }
-.readonly { background:#eee; }
-</style>
+  <!-- jsPDF (REQUIRED for PDF export) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f4f4;
+    }
+
+    header {
+      background: #1f2d3d;
+      color: #fff;
+      padding: 16px 20px;
+      font-size: 22px;
+    }
+
+    .toolbar {
+      background: #eee;
+      padding: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 1200px;
+      margin: auto;
+      background: #fff;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 6px;
+      margin-top: 4px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      min-height: 70px;
+    }
+
+    .readonly {
+      background: #eee;
+    }
+  </style>
 </head>
 <body>
 
 <header>Cochran Claims – Claim Editor</header>
 
+<!-- TOOLBAR -->
 <div class="toolbar">
   <button id="signInBtn">Sign In</button>
   <button id="signOutBtn" disabled>Sign Out</button>
   <button id="newClaimBtn" disabled>New Claim</button>
   <button id="saveBtn" disabled>Save Claim</button>
+
+  <button id="csvBtn" disabled>Export CSV</button>
+  <button id="pdfBtn" disabled>Export PDF</button>
+
   <select id="claimSelect" disabled>
     <option value="">Select Claim…</option>
   </select>
 </div>
 
+<!-- FORM -->
 <div class="container">
 
-<label>Timestamp</label>
-<input id="timestamp" class="readonly" readonly>
+  <label>Timestamp</label>
+  <input id="timestamp" class="readonly" readonly />
 
-<label>First Name</label><input id="firstName">
-<label>Middle Initial</label><input id="middleInitial">
-<label>Last Name</label><input id="lastName">
+  <label>First Name</label>
+  <input id="firstName" />
 
-<label>Street Address 1</label><input id="clientAddr1">
-<label>Street Address 2</label><input id="clientAddr2">
-<label>City</label><input id="clientCity">
-<label>State</label><input id="clientState">
-<label>Zip Code</label><input id="clientZip">
+  <label>Middle Initial</label>
+  <input id="middleInitial" />
 
-<label>Phone Number</label><input id="phone">
-<label>Email</label><input id="email">
-<label>Organization Name</label><input id="organizationName">
+  <label>Last Name</label>
+  <input id="lastName" />
 
-<label>Property Name</label><input id="propertyName">
-<label>Property Type</label><input id="propertyType">
+  <label>Street Address 1</label>
+  <input id="clientAddr1" />
 
-<label>Address Same as Client</label>
-<select id="addressSame">
-  <option></option><option>Yes</option><option>No</option>
-</select>
+  <label>Street Address 2</label>
+  <input id="clientAddr2" />
 
-<label>Property Street Address 1</label><input id="propAddr1">
-<label>Property Street Address 2</label><input id="propAddr2">
-<label>Property City</label><input id="propCity">
-<label>Property State</label><input id="propState">
-<label>Property Zip Code</label><input id="propZip">
+  <label>City</label>
+  <input id="clientCity" />
 
-<label>Reason for Claim</label><input id="reason">
-<label>Estimated Loss</label><input id="estimatedLoss">
-<label>Date of Loss</label><input type="date" id="dateOfLoss">
-<label>Cause of Loss / Peril</label><input id="causeOfLoss">
+  <label>State</label>
+  <input id="clientState" />
 
-<label>Habitable?</label><select id="habitable"><option></option><option>Yes</option><option>No</option></select>
-<label>FEMA Claim?</label><select id="fema"><option></option><option>Yes</option><option>No</option></select>
-<label>State of Emergency?</label><select id="emergency"><option></option><option>Yes</option><option>No</option></select>
+  <label>Zip Code</label>
+  <input id="clientZip" />
 
-<label>Related To</label><input id="relatedTo">
-<label>Description of Loss</label><textarea id="description"></textarea>
+  <label>Phone Number</label>
+  <input id="phone" />
 
-<label>Contract Date</label><input type="date" id="contractDate">
-<label>Contract Time</label><input type="time" id="contractTime">
+  <label>Email</label>
+  <input id="email" />
 
-<label>Claim Fee</label><input id="claimFee">
-<label>Claim Fee Type</label><input id="claimFeeType">
+  <label>Organization Name</label>
+  <input id="organizationName" />
 
-<label>Initial Contact Date</label><input type="date" id="initialContactDate">
-<label>Initial Contact Time</label><input type="time" id="initialContactTime">
+  <label>Property Name</label>
+  <input id="propertyName" />
 
-<label>Source of Claim</label><input id="sourceOfClaim">
+  <label>Property Type</label>
+  <input id="propertyType" />
 
-<label>Insurance Company</label><input id="insuranceCompany">
-<label>Insurance Company Name</label><input id="insuranceCompanyName">
-<label>Insurance Street Address</label><input id="insuranceAddr">
-<label>Insurance Company City</label><input id="insuranceCity">
-<label>Insurance Company State</label><input id="insuranceState">
-<label>Insurance Company Zip Code</label><input id="insuranceZip">
-<label>Insurance Company Phone</label><input id="insurancePhone">
+  <label>Address Same as Client</label>
+  <select id="addressSame">
+    <option value=""></option>
+    <option value="Yes">Yes</option>
+    <option value="No">No</option>
+  </select>
 
-<label>Adjuster First Name</label><input id="adjusterFirst">
-<label>Adjuster Last Name</label><input id="adjusterLast">
-<label>Adjuster Phone Number</label><input id="adjusterPhone">
-<label>Adjuster Email</label><input id="adjusterEmail">
-<label>Adjuster License Number</label><input id="adjusterLicense">
+  <label>Property Street Address 1</label>
+  <input id="propAddr1" />
 
-<label>Policy Number</label><input id="policyNumber">
-<label>Insurance Claim Number</label><input id="insuranceClaimNumber">
-<label>Policy Eff Date</label><input type="date" id="policyEff">
-<label>Policy Exp Date</label><input type="date" id="policyExp">
-<label>Policy Category</label><input id="policyCategory">
-<label>Policy Type</label><input id="policyType">
+  <label>Property Street Address 2</label>
+  <input id="propAddr2" />
 
-<label>Dwelling Limits (A)</label><input id="limitA">
-<label>Other Structures (B)</label><input id="limitB">
-<label>Content Limits (C)</label><input id="limitC">
-<label>Loss of Use Limits (D)</label><input id="limitD">
-<label>Depreciation</label><input id="depreciation">
-<label>Deductible</label><input id="deductible">
+  <label>Property City</label>
+  <input id="propCity" />
 
-<label>Mortgage Company</label><input id="mortgageCompany">
-<label>Mortgage Company Name</label><input id="mortgageCompanyName">
-<label>Mortgage Street Address</label><input id="mortgageAddr">
-<label>Mortgage City</label><input id="mortgageCity">
-<label>Mortgage Company State</label><input id="mortgageState">
-<label>Mortgage Company Zip Code</label><input id="mortgageZip">
-<label>Mortgage Company Phone</label><input id="mortgagePhone">
+  <label>Property State</label>
+  <input id="propState" />
 
-<label>Loan Number</label><input id="loanNumber">
-<label>Account Number</label><input id="accountNumber">
+  <label>Property Zip Code</label>
+  <input id="propZip" />
 
-<label>Notes</label><textarea id="notes"></textarea>
-<label>Special Instructions</label><textarea id="specialInstructions"></textarea>
+  <label>Reason for Claim</label>
+  <input id="reason" />
 
-<label>Imported</label>
-<select id="imported"><option></option><option>Yes</option><option>No</option></select>
+  <label>Estimated Loss</label>
+  <input id="estimatedLoss" />
 
-<label>Documents Folder URL</label><input id="documentsUrl">
+  <label>Date of Loss</label>
+  <input type="date" id="dateOfLoss" />
+
+  <label>Cause of Loss / Peril</label>
+  <input id="causeOfLoss" />
+
+  <label>Habitable?</label>
+  <select id="habitable">
+    <option value=""></option>
+    <option>Yes</option>
+    <option>No</option>
+  </select>
+
+  <label>FEMA Claim?</label>
+  <select id="fema">
+    <option value=""></option>
+    <option>Yes</option>
+    <option>No</option>
+  </select>
+
+  <label>State of Emergency?</label>
+  <select id="emergency">
+    <option value=""></option>
+    <option>Yes</option>
+    <option>No</option>
+  </select>
+
+  <label>Description of Loss</label>
+  <textarea id="description"></textarea>
+
+  <label>Notes</label>
+  <textarea id="notes"></textarea>
+
+  <label>Special Instructions</label>
+  <textarea id="specialInstructions"></textarea>
+
+  <label>Imported</label>
+  <select id="imported">
+    <option value=""></option>
+    <option>Yes</option>
+    <option>No</option>
+  </select>
+
+  <label>Documents Folder URL</label>
+  <input id="documentsUrl" />
 
 </div>
 
+<!-- APP SCRIPT (LAST) -->
 <script src="app.js"></script>
+
 </body>
 </html>
 
