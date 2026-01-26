@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cochran Claims – Claim Editor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; }
+header { background:#1f2d3d; color:#fff; padding:14px 20px; font-size:22px; }
+.toolbar { background:#eee; padding:10px; display:flex; gap:10px; align-items:center; }
+.container { padding:20px; max-width:1200px; }
+h2 { margin-top:40px; border-bottom:2px solid #ccc; padding-bottom:4px; }
+label { display:block; margin-top:10px; font-weight:bold; }
+input, select, textarea { width:100%; padding:6px; margin-top:4px; }
+textarea { min-height:70px; }
+button { padding:6px 12px; }
+</style>
+</head>
+<body>
+
+<header>Cochran Claims – Claim Editor</header>
+
+<div class="toolbar">
+  <button id="signInBtn">Sign In</button>
+  <button id="signOutBtn" disabled>Sign Out</button>
+  <button id="newClaimBtn" disabled>New Claim</button>
+  <button id="saveBtn" disabled>Save Claim</button>
+
+  <select id="claimSelect" disabled>
+    <option value="">Select Claim…</option>
+  </select>
+</div>
+
+<div class="container">
+
+<h2>Client</h2>
+<label>First Name</label><input id="firstName">
+<label>Middle Initial</label><input id="middleInitial">
+<label>Last Name</label><input id="lastName">
+<label>Phone</label><input id="phone">
+<label>Email</label><input id="email">
+
+<h2>Property</h2>
+<label>Street Address 1</label><input id="propAddr1">
+<label>Street Address 2</label><input id="propAddr2">
+<label>City</label><input id="propCity">
+<label>State</label><input id="propState">
+<label>Zip Code</label><input id="propZip">
+
+<h2>Claim</h2>
+<label>Reason for Claim</label><input id="reason">
+<label>Estimated Loss</label><input id="estimatedLoss">
+<label>Date of Loss</label><input type="date" id="dateOfLoss">
+<label>Cause of Loss</label><input id="causeOfLoss">
+<label>Description</label><textarea id="description"></textarea>
+
+<h2>Insurance</h2>
+<label>Insurance Company</label><input id="insuranceCompany">
+<label>Policy Number</label><input id="policyNumber">
+<label>Claim Number</label><input id="insuranceClaimNumber">
+
+<h2>Mortgage</h2>
+<label>Mortgage Company</label><input id="mortgageCompany">
+<label>Loan Number</label><input id="loanNumber">
+
+<h2>Notes</h2>
+<label>Notes</label><textarea id="notes"></textarea>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
+
